@@ -42,6 +42,11 @@ Tail the container logs by id.
 docker logs -f bb41eae63413
 ```
 
+Execute commands inside the container specified by the id. In this case we connect to a db container and run the mysql command line tool.
+```
+docker exec -it dfda05c2c20b mysql -p password
+```
+
 ---
 
 ## Volumes
@@ -71,6 +76,10 @@ docker volume inspect my-named-volume
         "Scope": "local"
     }
 ]
+```
+Clean up volumes not being used by any containers.
+```
+docker volume prune
 ```
 
 ### Bind mounts
