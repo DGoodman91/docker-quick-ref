@@ -69,7 +69,7 @@ Run a container in detached mode and map port 3306 in the container to port 3307
 ```
 docker run --name my-db -d -p 3307:3306 mysql:5.7
 ```
-Can use the *-e* argument to specify environment variables in the container.
+Can use the *-e* argument to specify environment variables in the container. ***DON'T PASS SECRETS IN THIS WAY IN PRODUCTION!***
 ```
 docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=myfirstdb mysql:5.7
 ```
@@ -200,7 +200,7 @@ docker run -d -p 3306:3306 -v my-mysql-data:/var/lib/mysql -e MYSQL_ROOT_PASSWOR
 
 ### Basic examples
 
-The following is a simple compose example from Docker's Getting Started guide. It defines two images: a node app and a database - the latter using a named volume defined in the file. The node app connects to the database using the DNS name, based by default on the name of the service (in this case *mysql*). I've added in the netshoot container which is useful for hopping onto the network and exploring.
+The following is a simple compose example from Docker's Getting Started guide. It defines two images: a node app and a database - the latter using a named volume defined in the file. The node app connects to the database using the DNS name, based by default on the name of the service (in this case *mysql*). I've added in the netshoot container which is useful for hopping onto the network and exploring. Again, ***DON'T PASS SECRETS IN THIS WAY IN PRODUCTION!***
 ```yaml
 version: "3.7"
 
