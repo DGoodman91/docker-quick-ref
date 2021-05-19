@@ -14,6 +14,53 @@ List all images.
 docker image ls
 ```
 
+[Scan image](https://docs.docker.com/engine/scan/) for vulnerabilities using Snyk. 
+```
+docker scan mysql:5.7
+```
+
+View the layers that make up an image with the *history* command.
+```
+docker image history --no-trunc mysql:5.7
+```
+
+### Layer caching
+
+When a layer in our image changes, each downstream layer needs rebuilding. So with the following Dockerfile, if ANY file in our app changes, the yarn dependency installation layer will be rebuilt too, meaning downloading them all again
+
+```docker
+FROM node:12-alpine
+WORKDIR /app
+COPY . .
+RUN yarn install --production
+CMD ["node", "src/index.js"]
+``` 
+
+A big efficiency is to copy the package.json & yarn.lock files first (and hence in a separate layer), then install the deps, then copy the rest of the app files. This means the *yarn install* layer will **only** be rebuilt if there's a change to the two relevant files.
+
+```docker
+FROM node:12-alpine
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --production
+COPY . .
+CMD ["node", "src/index.js"]
+```
+
+### Multi-stage builds
+
+The following example of building a Java application image means that even though we need a JDK to compile the code, the JDK isn't included in the final image (since it's not needed).
+
+```docker
+FROM maven AS build
+WORKDIR /app
+COPY . .
+RUN mvn package
+
+FROM tomcat
+COPY --from=build /app/target/file.war /usr/local/tomcat/webapps 
+```
+
 ---
 
 ## Container Basics
@@ -25,6 +72,10 @@ docker run --name my-db -d -p 3307:3306 mysql:5.7
 Can use the *-e* argument to specify environment variables in the container.
 ```
 docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=myfirstdb mysql:5.7
+```
+Can combine the working directory argument *-w* with the positional *command* argument - supplied as the final arg to execute a command on container start.
+```
+docker run -dp 3000:3000 -w /app -v "$(pwd):/app" my-node-app sh -c "yarn install && yarn run dev"
 ```
 
 
@@ -99,6 +150,10 @@ docker network create my-network
 ```
 Run a container and join it onto the network.
 ```
+docker run -d --network my-network mysql:5.7
+```
+The the *network-alias* argument can be used to add a DNS record to the network to point to the container.
+```
 docker run -d --network my-network --network-alias my-networked-db mysql:5.7
 ```
 
@@ -137,4 +192,58 @@ docker run -d -p 8080:80 -v C:/Users/david/Documents/docker/simple-webapp:/usr/l
 Use the [official docker mysql](https://hub.docker.com/_/mysql) image to get a database up and running rapidly. The named volume will be auto-created if it doesn't exist.
 ```
 docker run -d -p 3306:3306 -v my-mysql-data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=dbname mysql:5.7
+```
+
+---
+
+## Docker Compose
+
+### Basic examples
+
+The following is a simple compose example from Docker's Getting Started guide. It defines two images: a node app and a database - the latter using a named volume defined in the file. The node app connects to the database using the DNS name, based by default on the name of the service (in this case *mysql*).
+```yaml
+version: "3.7"
+
+services:
+    app:
+        image: "node:12-alpine"
+        command: sh -c "yarn install && yarn run dev"
+        ports:
+            - 3000:3000
+        working_dir: /app
+        volumes:
+            - ./:/app
+        environment:
+            MYSQL_HOST: mysql
+            MYSQL_USER: root
+            MYSQL_PASSWORD: secret
+            MYSQL_DB: todos
+    mysql:
+        image: mysql:5.7
+        volumes:
+            - todo-mysql-data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: todos
+
+volumes:
+    todo-mysql-data:
+
+```
+
+Bring up the services defined in the docker-compose.yml file in the current directory, using the *remove-orphaned* arg to clean up any old copies of the containers.
+```
+docker-compose up -d --remove-orphans
+```
+Tail the docker-compose logs.
+```
+docker-compose logs -f
+```
+Tear it down.
+```
+docker-compose down
+```
+Tear it down and remove volumes.
+```
+docker-compose down --volumes
 ```
