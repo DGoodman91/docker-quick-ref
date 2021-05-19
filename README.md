@@ -200,7 +200,7 @@ docker run -d -p 3306:3306 -v my-mysql-data:/var/lib/mysql -e MYSQL_ROOT_PASSWOR
 
 ### Basic examples
 
-The following is a simple compose example from Docker's Getting Started guide. It defines two images: a node app and a database - the latter using a named volume defined in the file. The node app connects to the database using the DNS name, based by default on the name of the service (in this case *mysql*).
+The following is a simple compose example from Docker's Getting Started guide. It defines two images: a node app and a database - the latter using a named volume defined in the file. The node app connects to the database using the DNS name, based by default on the name of the service (in this case *mysql*). I've added in the netshoot container which is useful for hopping onto the network and exploring.
 ```yaml
 version: "3.7"
 
@@ -225,6 +225,9 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: secret
             MYSQL_DATABASE: todos
+    netshoot:
+        image: nicolaka/netshoot
+        command: sh -c "tail -f /dev/null"
 
 volumes:
     todo-mysql-data:
