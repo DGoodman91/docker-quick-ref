@@ -15,7 +15,7 @@ public class WelcomeController {
 
     @GetMapping("/")
     public String index(Model model) {
-        logger.debug("Welcome! :)");
+        logger.debug("Welcome!! :D");
         return "index";
     }
 
