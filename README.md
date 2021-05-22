@@ -36,7 +36,7 @@ RUN yarn install --production
 CMD ["node", "src/index.js"]
 ``` 
 
-A big efficiency is to copy the package.json & yarn.lock files first (and hence in a separate layer), then install the deps, then copy the rest of the app files. This means the *yarn install* layer will **only** be rebuilt if there's a change to the two relevant files.
+A big efficiency is to copy the package.json & yarn.lock files first (and hence in a separate layer), then install the deps, then copy the rest of the app files. This means the *yarn install* layer will **only** be rebuilt if there's a change to the two relevant files. The same applies to e.g. pom.xml files in a Maven project.
 
 ```docker
 FROM node:12-alpine
