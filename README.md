@@ -24,9 +24,17 @@ View the layers that make up an image with the *history* command.
 docker image history --no-trunc mysql:5.7
 ```
 
+## Debugging
+
+When debugging build issues, it can be useful to use the RUN command in the Dockerfile to run echos, ls, pwd, etc. To ensure the output is shown, use the *progress* argument.
+
+```
+docker build -t image-name --progress=plain .
+```
+
 ### Layer caching
 
-When a layer in our image changes, each downstream layer needs rebuilding. So with the following Dockerfile, if ANY file in our app changes, the yarn dependency installation layer will be rebuilt too, meaning downloading them all again
+When a layer in our image changes, each downstream layer needs rebuilding. So with the following Dockerfile, if ANY file in our app changes, the yarn dependency installation layer will be rebuilt too, meaning downloading them all again.
 
 ```docker
 FROM node:12-alpine
