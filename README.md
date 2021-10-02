@@ -37,6 +37,13 @@ When debugging build issues, it can be useful to use the RUN command in the Dock
 docker build -t image-name --progress=plain .
 ```
 
+Sometimes it's useful to disable the use of layer caching using the *no-cache* argument when investigating problems
+
+```
+docker build -t image-name --progress=plain --no-cache .
+```
+
+## Build techniques
 ### Layer caching
 
 When a layer in our image changes, each downstream layer needs rebuilding. So with the following Dockerfile, if ANY file in our app changes, the yarn dependency installation layer will be rebuilt too, meaning downloading them all again.
