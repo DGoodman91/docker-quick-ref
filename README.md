@@ -8,6 +8,11 @@ Build an imagine called myimage using the Dockerfile in the current directory.
 docker build -t myimage .
 ```
 
+Build an image from a specific dockerfile
+
+```
+docker build -t myimage -f myfile.dockerfile .
+```
 
 List all images.
 ```
